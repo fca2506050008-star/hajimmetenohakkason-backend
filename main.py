@@ -5,6 +5,12 @@ from .models import User
 from .schemas import LoginRequest, TodoUpdate
 from datetime import datetime, timedelta
 from jose import jwt
+import os
+
+SECRET_KEY = os.environ['SECRET_KEY']
+ALGORITHM = os.environ['ALGORITHM']
+ACCESS_TOKEN_EXPIRE_MINUTES = os.environ['ACCESS_TOKEN_EXPIRE_MINUTES']
+
 
 app = FastAPI()
 
@@ -30,10 +36,6 @@ def login(body: LoginRequest, db: Session = Depends(get_db)):
 
 	return {"access_token": access_token, "token_type": "bearer"}
 
-
-SECRET_KEY = "your-secret-key"
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode = data.copy()
