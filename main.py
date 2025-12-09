@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 from .db import get_db
 from .models import User
-from .schemas import LoginRequest, TodoUpdate
+from .schemas import LoginRequest, choice
 from datetime import datetime, timedelta
 from jose import jwt
 from dotenv import load_dotenv
@@ -70,3 +70,16 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
 @app.get("/api/calc")
 def get_random_int():
     return {"value": random.randint(4000, 30000)}
+
+
+@app.post("/some-action")
+def some_action(body: choice):
+    if body.choice == "treat":
+        return {"result": True}
+
+    elif body.choice == "split":
+        return {"result": False}
+
+    else:
+        # それ以外が来たらエラー
+        raise HTTPException(status_code=400, detail="Invalid choice")
