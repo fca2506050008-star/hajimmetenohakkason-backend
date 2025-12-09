@@ -5,11 +5,16 @@ from .models import User
 from .schemas import LoginRequest, TodoUpdate
 from datetime import datetime, timedelta
 from jose import jwt
+from dotenv import load_dotenv
 import os
+import random
 
+
+load_dotenv()
 SECRET_KEY = os.environ['SECRET_KEY']
 ALGORITHM = os.environ['ALGORITHM']
 ACCESS_TOKEN_EXPIRE_MINUTES = os.environ['ACCESS_TOKEN_EXPIRE_MINUTES']
+
 
 
 app = FastAPI()
@@ -46,7 +51,7 @@ def login(body: LoginRequest, db: Session = Depends(get_db)):
     httponly=True,
     secure=True,
     samesite="None",
-    path="/api"     # ← ★ここがあなたの希望
+    path="/api"     
 	)
 
 	return response 
@@ -62,4 +67,6 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None):
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-	
+@app.get("/api/calc")
+def get_random_int():
+    return {"value": random.randint(4000, 30000)}
