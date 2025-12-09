@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 from .db import get_db
 from .models import User
@@ -29,12 +29,31 @@ def login(body: LoginRequest, db: Session = Depends(get_db)):
 		new_user = User(email=body.email, password=body.password)
 		db.add(new_user)
 		db.commit()	
+	else:
+		if user.password != body.password:
+			raise HTTPException(status_code=400, detail="パスワードが違います")
 
-	access_token = create_access_token(
-        data={"sub": str(user.id)}
+
+	# JWT 作成
+	access_token = create_access_token(data={"sub": str(user.id)})
+
+
+	# Cookie に JWT をセット
+	response = Response(content = '{"message": "login successful"}')
+	response.set_cookie(
+    key="access_token",
+    value=access_token,
+    httponly=True,
+    secure=True,
+    samesite="None",
+    path="/api"     # ← ★ここがあなたの希望
 	)
 
-	return {"access_token": access_token, "token_type": "bearer"}
+	return response 
+
+	# return {"access_token": access_token, "token_type": "bearer"}
+
+
 
 
 def create_access_token(data: dict, expires_delta: timedelta | None = None):
